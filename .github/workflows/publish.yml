@@ -1,4 +1,4 @@
-name: Publish diqu package
+name: Publish diqu-email package
 
 on:
   release:
