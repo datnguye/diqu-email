@@ -1,12 +1,12 @@
 import os
 
 from sendgrid import SendGridAPIClient
-from sendgrid.helpers.mail import Mail
+from sendgrid.helpers.mail import Mail, Personalization, To
 
 from diqu.utils.log import logger
 from diqu.utils.meta import ResultCode
 
-NO_REPLY = "diqu-email@noreply.com"
+NO_REPLY = "email@diqu.com"
 
 
 def alert(data) -> ResultCode:
@@ -17,25 +17,25 @@ def alert(data) -> ResultCode:
     if not SENDGRID_API_KEY or not SENDGRID_MAILING_LIST:
         logger.error("❌ SENDGRID_API_KEY or SENDGRID_MAILING_LIST are not set")
         return ResultCode.FAILED
-        
-    msg = Mail(
-        from_email=SENDGRID_FROM,
-        to_emails=SENDGRID_MAILING_LIST.split(","),
-        is_multiple=True,
-        dynamic_template_data={
-            "date": data["CHECK_TIMESTAMP"].iloc[0],
-            "fail_count": data[data["TEST_STATUS"] == "fail"].shape[0],
-            "warn_count": data[data["TEST_STATUS"] == "warn"].shape[0],
-            "pass_count": data[data["TEST_STATUS"] == "pass"].shape[0],
-            "deperecated_count": data[data["TEST_STATUS"] == "deprecate"].shape[0],
-        },
-        template_id=SENDGRID_TEMPLATE_ID,
-    )
+
+    personalization = Personalization()
+    personalization.dynamic_template_data = {
+        "date": data["CHECK_TIMESTAMP"].iloc[0],
+        "fail_count": data[data["TEST_STATUS"] == "fail"].shape[0],
+        "warn_count": data[data["TEST_STATUS"] == "warn"].shape[0],
+        "pass_count": data[data["TEST_STATUS"] == "pass"].shape[0],
+        "deperecated_count": data[data["TEST_STATUS"] == "deprecate"].shape[0],
+    }
+    personalization.tos = [To(x) for x in SENDGRID_MAILING_LIST.split(",")]
+    msg = Mail(from_email=SENDGRID_FROM)
+    msg.template_id = SENDGRID_TEMPLATE_ID
+    msg.add_personalization(personalization)
 
     try:
         client = SendGridAPIClient(SENDGRID_API_KEY)
-        client.send(msg)
+        r = client.send(msg)
 
+        logger.info(vars(r))
         logger.info("✅ Done > Sendgrid")
         return ResultCode.SUCCEEDED
     except Exception as e:
