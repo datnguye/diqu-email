@@ -1,0 +1,6 @@
+example:
+  target: dev
+  outputs:
+    dev:
+      type: csv
+      dir: example/data
