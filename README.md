@@ -7,7 +7,8 @@ Alert module using Email method (Sendgrid)
 ### Installation
 
 ```bash
-pip install diqu diqu-email
+pip install diqu
+pip install diqu-email --upgrade
 ```
 
 ### Send email
