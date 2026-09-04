@@ -36,7 +36,7 @@ pytest = "^7.2.0"
 pytest-sugar = "^0.9.6"
 coverage = {version = "^6.5.0", extras = ["toml"]}
 mkdocs = "^1.5.3"
-mkdocs-material = "^9.4.8"
+mkdocs-material = "^9.7.7"
 mkdocs-minify-plugin = "^0.7.1"
 mike = "^2.0.0"
 
